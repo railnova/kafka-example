@@ -28,6 +28,6 @@ To get your first message, run the main file
 
 `python main.py`
 
-You should see `"Connection to Railnova Kafka successful !"`, it means that the anthentification worked.
+You should see `"Connection to Railnova Kafka successful !"`, it means that the authentification worked.
 
 You should then see your first message printed, followed by `"All good!"`, meaning that you got your first message!
