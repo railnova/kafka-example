@@ -73,7 +73,7 @@ except KafkaException as exception:
     raise KafkaInitialConnectionError(error.str())
 
 consumer.subscribe([KAFKA_TOPIC])
-msg = consumer.poll(timeout=10)
+msg = consumer.poll(timeout=120)
 print("One message consumed ... ")
 print("Key: ", end="")
 print(msg.key())
