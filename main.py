@@ -51,7 +51,7 @@ KAFKA_CONFIG = {
     "message.max.bytes": 5000000,
     "group.id": "railnova-kafka-client-demo",
     "enable.auto.commit": True,
-    "default.topic.config": {"auto.offset.reset": "latest"},
+    "default.topic.config": {"auto.offset.reset": "earliest"},  # earliest or latest
     "partition.assignment.strategy": "roundrobin",
     "key.deserializer": AvroDeserializer(sr),
     "value.deserializer": AvroDeserializer(sr),
@@ -73,6 +73,7 @@ except KafkaException as exception:
     raise KafkaInitialConnectionError(error.str())
 
 consumer.subscribe([KAFKA_TOPIC])
+print("Polling Kafka with a timeout of 120s ... ")
 msg = consumer.poll(timeout=120)
 print("One message consumed ... ")
 print("Key: ", end="")
