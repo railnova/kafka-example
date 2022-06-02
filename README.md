@@ -12,7 +12,7 @@ This repository contains 3 files:
 
 ## Installation
 
-1. Install the dependencies using `pip`
+1. Install the dependencies using `pip` and using python3.9 (python3.10 and the kafka library are not fully compatible yet on 02-06-2022)
 
 `pip install -r requirements.txt`
 
