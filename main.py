@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+from pprint import pprint
 # Import the Kafka library
 try:
     from confluent_kafka import DeserializingConsumer, KafkaException
@@ -76,8 +76,8 @@ consumer.subscribe([KAFKA_TOPIC])
 print("Polling Kafka with a timeout of 120s ... ")
 msg = consumer.poll(timeout=120)
 print("One message consumed ... ")
-print("Key: ", end="")
+print("Key:\t", end="")
 print(msg.key())
-print("Value: ", end="")
-print(msg.value())
+print("Value:")
+pprint(msg.value(), sort_dicts=False)
 print("All good!")
