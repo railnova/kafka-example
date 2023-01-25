@@ -51,7 +51,7 @@ KAFKA_CONFIG = {
     "message.max.bytes": 5000000,
     "group.id": "railnova-kafka-client-demo",
     "enable.auto.commit": True,
-    "default.topic.config": {"auto.offset.reset": "earliest"},  # earliest or latest
+    "auto.offset.reset": "earliest",
     "partition.assignment.strategy": "roundrobin",
     "key.deserializer": AvroDeserializer(sr),
     "value.deserializer": AvroDeserializer(sr),
