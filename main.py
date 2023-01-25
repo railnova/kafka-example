@@ -17,6 +17,7 @@ try:
         KAFKA_PASSWORD,
         KAFKA_TOPIC,
         KAFKA_SCHEMA_REGISTRY,
+        KAFKA_GROUP_ID,
     )
 except:
     raise Exception(
@@ -28,6 +29,7 @@ assert len(KAFKA_USER) > 0, "The setting KAFKA_USER is empty"
 assert len(KAFKA_PASSWORD) > 0, "The setting KAFKA_PASSWORD is empty"
 assert len(KAFKA_TOPIC) > 0, "The setting KAFKA_TOPIC is empty"
 assert len(KAFKA_SCHEMA_REGISTRY) > 0, "The setting KAFKA_SCHEMA_REGISTRY is empty"
+assert len(KAFKA_GROUP_ID) > 0
 # Validate the presence of the CA
 assert os.path.exists(
     "./ca.pem"
@@ -49,7 +51,7 @@ KAFKA_CONFIG = {
     "ssl.ca.location": "ca.pem",
     "bootstrap.servers": KAFKA_BROKER,
     "message.max.bytes": 5000000,
-    "group.id": "railnova-kafka-client-demo",
+    "group.id": KAFKA_GROUP_ID,
     "enable.auto.commit": True,
     "auto.offset.reset": "earliest",
     "partition.assignment.strategy": "roundrobin",
