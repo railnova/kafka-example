@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from pprint import pprint
+
 # Import the Kafka library
 try:
     from confluent_kafka import DeserializingConsumer, KafkaException
@@ -65,7 +66,7 @@ try:
     metadata = consumer.list_topics(timeout=10)
     if metadata.orig_broker_id in [None, 0, -1] and not metadata.brokers:
         raise KafkaInitialConnectionError("Initial connection broker id is invalid")
-    print("Connection to Railnova Kafka successful !")
+    print("Connection to Railnova Kafka successful!")
 except KafkaException as exception:
     error = exception.args[0]
 
@@ -75,11 +76,11 @@ except KafkaException as exception:
     raise KafkaInitialConnectionError(error.str())
 
 consumer.subscribe([KAFKA_TOPIC])
-print("Polling Kafka with a timeout of 120s ... ")
+print("Polling Kafka with a timeout of 120s...")
 msg = consumer.poll(timeout=120)
-print("One message consumed ... ")
 print("Key:\t", end="")
 print(msg.key())
 print("Value:")
 pprint(msg.value(), sort_dicts=False)
-print("All good!")
+print("\nOne message succesfully consumed!")
+print("You can configure the Kafka interface in your own service.")
