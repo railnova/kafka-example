@@ -1,0 +1,22 @@
+# Changelog
+
+## 2025-01-10
+
+### Added
+
+- This `CHANGELOG.md` file.
+
+### Changed
+
+- The `README.md` has been updated to reflect all changes below.
+- The example program `main.py` has been renamed `railnova_kafka_example.py`.
+- The dependencies have been reduced to `confluent-kafka[avro,schemaregistry]` but upgraded to the latest.
+- Usage of the obsolete `AvroConsumer` API has been replaced by `AvroDeserializer` and `SchemaRegistryClient`.
+- Settings have been replaced by command line arguments, using the standard `argparse` module.
+- Proper logging has been added, using the standard `logging` module.
+- The program sources are more extensively commented.
+
+### Removed
+
+- The `requirements.txt` file, as dependencies are now reduced to `confluent-kafka[avro,schemaregistry]`.
+
