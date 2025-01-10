@@ -9,6 +9,7 @@
 ### Changed
 
 - The `README.md` has been updated to reflect all changes below.
+- The `ca.pem` Certificate Authority's self-signed certificate is bundled.
 - The example program `main.py` has been renamed `railnova_kafka_example.py`.
 - The dependencies have been reduced to `confluent-kafka[avro,schemaregistry]` but upgraded to the latest (2.8.0).
 - Usage of the obsolete `AvroConsumer` API has been replaced by `AvroDeserializer` and `SchemaRegistryClient`.
