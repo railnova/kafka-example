@@ -20,4 +20,4 @@
 ### Removed
 
 - The `requirements.txt` file, as dependencies are now reduced to `confluent-kafka[avro,schemaregistry]`.
-
+- The `settings.py` which were replaced by command line arguments.
