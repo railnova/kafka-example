@@ -49,9 +49,9 @@ You should see the following log output:
 
 ```log
 2025-01-10 10:58:08,638 INFO Schema registry is accessible at 'kafka-13e7abdf-test-railnova-5ffc.aivencloud.com'
-2025-01-10 10:58:08,640 INFO Kafka consumer subscribed to topic 'output-sharing-railpool'
-2025-01-10 10:58:12,126 WARNING OFFSET [rdkafka#consumer-1] [thrd:main]: output-sharing-railpool [1]: offset reset (at offset 10436673 (leader epoch 122), broker 70) to offset BEGINNING (leader epoch -1): fetch failed due to requested offset not available on the broker: Broker: Offset out of range
-2025-01-10 10:58:12,265 INFO Received {'type': 'A', 'id': 12838} -> {'type': 'merged', 'timestamp': '2025-01-04T13:30:38Z', 'asset': 12838, 'device': None, 'asset_uic': '918061864925', 'is_open': True, 'content': '{"gps_time": "2025-01-04T13:30:38Z", "latitude": 51836109.16137695, "longitude": 4823332.786560059, "speed": 0, "course": 0, "fix": 1, "location": "Hardinxveld Blauwe Zoom", "country": "Netherlands", "total_km": 816234, "period_km": 0, "status": "parking", "status_last_change": "2022-09-30T22:40:07Z"}', 'version': None, 'recv_time': '2025-01-04 13:30:54', 'processed_time': '2025-01-04 13:30:54', 'source': None, 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
+2025-01-10 10:58:08,640 INFO Kafka consumer subscribed to topic 'output-sharing-********'
+2025-01-10 10:58:12,126 WARNING OFFSET [rdkafka#consumer-1] [thrd:main]: output-sharing-**** [1]: offset reset (at offset 10436673 (leader epoch 122), broker 70) to offset BEGINNING (leader epoch -1): fetch failed due to requested offset not available on the broker: Broker: Offset out of range
+2025-01-10 10:58:12,265 INFO Received {'type': 'A', 'id': 12838} -> {'type': 'merged', 'timestamp': '2025-01-04T13:30:38Z', 'asset': 12838, 'device': None, 'asset_uic': '************', 'is_open': True, 'content': '{"gps_time": "2025-01-04T13:30:38Z", "latitude": 51836109.16137695, "longitude": 4823332.786560059, "speed": 0, "course": 0, "fix": 1, "location": "Hardinxveld Blauwe Zoom", "country": "Netherlands", "total_km": 816234, "period_km": 0, "status": "parking", "status_last_change": "2022-09-30T22:40:07Z"}', 'version': None, 'recv_time': '2025-01-04 13:30:54', 'processed_time': '2025-01-04 13:30:54', 'source': None, 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
 ```
 
 By default, this program will connect to Railnova's `test` Kafka cluster.
