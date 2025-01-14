@@ -1,34 +1,78 @@
-# Railnova Kafka example
-This repository provides an example to connect to our Kafka. It serves to verify that a kafka environment has been correctly configured.
+# Railnova Kafka Example
 
-This repository contains 3 files:
+This repository provides an example of how to fetch and decode messages from one of Railnova's Kafka sharing topic,
+using the Python programming language.
 
-- In the file `requirements.txt` you will find the library that need to be installed.
-- In the file `settings.py`, you will need to set the variables we sent you.
-- In the file `main.py`, you will find the logic.
+Besides this `README.md` and a `CHANGELOG.md` it contains two files:
+
+- `ca.pem`: a Certificate Authority used to verify the Kafka broker's certificate.
+- `railnova_kafka_example.py`: a program to poll one message from a given topic
+
+Note that this example requires at least Python 3.9.
+
+## Install
+
+First, clone this repository in a `railnova-kafka-example` folder:
+
+```bash
+git clone https://github.com/railnova/kafka-example railnova-kafka-example
+```
+
+Then move to that folder, create a Python virtual environment called `venv` and activate it:
+
+```bash
+cd railnova-kafka-example
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Finally, install the required dependencies in the activated virtual environment:
+
+```bash
+pip install confluent-kafka[avro,schemaregistry]==2.8.0
+```
+
+This will install version `2.8.0` of Confluent's client library with the optional support for AVRO
+and Kafka Schema Registry along with all their dependencies.
 
 
-## Installation
+## Run
 
-1. Install the dependencies using `pip` and using python3.9 (python3.10 and the kafka library are not fully compatible yet on 02-06-2022)
-    `pip install -r requirements.txt`
-2. Copy the `ca.pem` file we sent you next in this direcotry next to this `README.md` file;
-3. In the file `settings.py`, set the variable to the value we sent you, and choose a valid `KAFKA_GROUP_ID` value.
+The example Python program called `railnova_kafka_example.py` requires three arguments
+to connect to Railnova's Kafka broker and fetch a single message from a topic.
 
-## Getting your first message
+```bash
+python railnova_kafka_example.py --username=... --password=... --topic=...
+```
 
-To get your first message, run the main file by executing `python main.py`.
+You should see the following log output:
 
-The following output is expected:
+```log
+2025-01-10 10:58:08,638 INFO Schema registry is accessible at 'kafka-13e7abdf-test-railnova-5ffc.aivencloud.com'
+2025-01-10 10:58:08,640 INFO Kafka consumer subscribed to topic 'output-sharing-********'
+2025-01-10 10:58:12,126 WARNING OFFSET [rdkafka#consumer-1] [thrd:main]: output-sharing-**** [1]: offset reset (at offset 10436673 (leader epoch 122), broker 70) to offset BEGINNING (leader epoch -1): fetch failed due to requested offset not available on the broker: Broker: Offset out of range
+2025-01-10 10:58:12,265 INFO Received {'type': 'A', 'id': 12838} -> {'type': 'merged', 'timestamp': '2025-01-04T13:30:38Z', 'asset': 12838, 'device': None, 'asset_uic': '************', 'is_open': True, 'content': '{"gps_time": "2025-01-04T13:30:38Z", "latitude": 51836109.16137695, "longitude": 4823332.786560059, "speed": 0, "course": 0, "fix": 1, "location": "Hardinxveld Blauwe Zoom", "country": "Netherlands", "total_km": 816234, "period_km": 0, "status": "parking", "status_last_change": "2022-09-30T22:40:07Z"}', 'version': None, 'recv_time': '2025-01-04 13:30:54', 'processed_time': '2025-01-04 13:30:54', 'source': None, 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
+```
 
-- `Connection to Railnova Kafka successful`
-    - The client was able to connect to the hosted kafka instance
-- `Polling Kafka with a timeout of 120s`
-    - The client is waiting for a new message
-    - It is not unlikely that you might time out here, depending on how many assets are sending messages to the topic.
-    If the issue is persistent, please get in contact.
-- `Key: [...]`, `Value : [...]`
-    - The content of the received message
-- `One message succesfully consumed`
-    - The final message before the script returns
-    - **This message means that the Kafka environment works as expected**
+By default, this program will connect to Railnova's `test` Kafka cluster.
+
+To test connection to the production cluster you may specify a `--hostname`, for instance:
+
+```bash
+python railnova_kafka_example.py --hostname=kafka-prod-railnova-5ffc.aivencloud.com ...
+```
+
+By default, this programm will use `railnova_kafka_example` as its [consumer's group identifier](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/). If you need to provide another, use the `--group-id` argument.
+
+
+## Troubleshoot
+
+This program uses the bundled `ca.pem` Certificate Authority to verify the certificate provided by the
+Kafka broker.
+
+If that Certificate Authority has been revoked or is otherwise invalid then you may see the
+following output on STDERR:
+
+```log
+2025-01-10 11:03:16,527 ERROR FAIL [rdkafka#consumer-1] [thrd:sasl_ssl://kafka-13e7abdf-test-railnova-5ffc.aivencloud.com:272]: sasl_ssl://kafka-13e7abdf-test-railnova-5ffc.aivencloud.com:27257/bootstrap: SSL handshake failed: error:0A000086:SSL routines::certificate verify failed: broker certificate could not be verified, verify that ssl.ca.location is correctly configured or root CA certificates are installed (install ca-certificates package) (after 19ms in state SSL_HANDSHAKE)
+```
