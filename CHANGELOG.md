@@ -1,5 +1,16 @@
 # Changelog
 
+## 2025-01-17
+
+### Added
+
+- A `railnova_kafka_mtls.py` program to access the Kafka broker using mTLS instead of SASL.
+
+### Changed
+
+- The program `railnova_kafka_example.py`'s help now specify its use of SASL.
+- The `README.md` has been updated to reflect changes above.
+
 ## 2025-01-14
 
 ### Added

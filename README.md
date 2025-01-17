@@ -36,7 +36,7 @@ This will install version `2.8.0` of Confluent's client library with the optiona
 and Kafka Schema Registry along with all their dependencies.
 
 
-## Run
+## Run - SASL Authentication
 
 The example Python program called `railnova_kafka_example.py` requires three arguments
 to connect to Railnova's Kafka broker and fetch a single message from a topic.
@@ -64,6 +64,28 @@ python railnova_kafka_example.py --hostname=kafka-prod-railnova-5ffc.aivencloud.
 
 By default, this programm will use `railnova_kafka_example` as its [consumer's group identifier](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/). If you need to provide another, use the `--group-id` argument.
 
+
+## Run - SSL access key and certificate authentication
+
+Another example Python program called `railnova_kafka_mtls.py` uses SSL client key
+and certificate to connect to Railnova's Kafka broker and fetch a single message from a topic.
+
+```bash
+python railnova_kafka_mtls.py --username=... --password=... --topic=... --key=... --certificate=...
+```
+
+The `--key` and `--certificate` arguments are respectively the locations to the `service.key`
+and `service.cert` files supplied separately.
+
+Note that a user name and a password are still required, but only to connect to the Kafka Schema Registry.
+
+You should see the following log output:
+
+```log
+2025-01-17 09:29:28,049 INFO Schema registry is accessible at 'kafka-13e7abdf-test-railnova-5ffc.aivencloud.com'
+2025-01-17 09:29:28,052 INFO Kafka consumer subscribed to topic 'output-sharing-******'
+2025-01-17 09:29:35,407 INFO Received {'type': 'A', 'id': 10752} -> {'type': 'analog', 'timestamp': '2025-01-14T11:14:04Z', 'asset': 10752, 'device': 4006, 'asset_uic': None, 'is_open': True, 'content': '{"fuel_gauge_volt": 0.006280615626568774, "main_battery": 26.696541797683896, "main_battery_volt": 26.696541797683896, "support_battery": 25.100480351582107, "support_battery_volt": 25.100480351582107}', 'version': None, 'recv_time': '2025-01-14T11:14:06Z', 'processed_time': '2025-01-14 11:14:06', 'source': 'railster-pipe', 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
+```
 
 ## Troubleshoot
 
