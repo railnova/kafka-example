@@ -65,7 +65,7 @@ python railnova_kafka_example.py --hostname=kafka-prod-railnova-5ffc.aivencloud.
 By default, this programm will use `railnova_kafka_example` as its [consumer's group identifier](https://www.confluent.io/blog/configuring-apache-kafka-consumer-group-ids/). If you need to provide another, use the `--group-id` argument.
 
 
-## Run - SSL access key and certificate authentication
+## Run - mTLS Authentication
 
 Another example Python program called `railnova_kafka_mtls.py` uses SSL client key
 and certificate to connect to Railnova's Kafka broker and fetch a single message from a topic.
@@ -86,6 +86,36 @@ You should see the following log output:
 2025-01-17 09:29:28,052 INFO Kafka consumer subscribed to topic 'output-sharing-******'
 2025-01-17 09:29:35,407 INFO Received {'type': 'A', 'id': 10752} -> {'type': 'analog', 'timestamp': '2025-01-14T11:14:04Z', 'asset': 10752, 'device': 4006, 'asset_uic': None, 'is_open': True, 'content': '{"fuel_gauge_volt": 0.006280615626568774, "main_battery": 26.696541797683896, "main_battery_volt": 26.696541797683896, "support_battery": 25.100480351582107, "support_battery_volt": 25.100480351582107}', 'version': None, 'recv_time': '2025-01-14T11:14:06Z', 'processed_time': '2025-01-14 11:14:06', 'source': 'railster-pipe', 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
 ```
+
+## Run - mTLS Authentication and no Schema Registry
+
+If you do not want to distribute user name and password, there is a third example Python program 
+called `railnova_kafka_nosr.py` that uses SSL client key and certificate to connect to Railnova's
+Kafka broker but which does not depend on the Kafka Schema Registry to decode AVRO payloads.
+
+```bash
+python railnova_kafka_nosr.py --topic=... --key=... --certificate=...
+```
+
+As above the `--key` and `--certificate` arguments are respectively the locations to the `service.key`
+and `service.cert` files supplied separately. But since it does not depend on the Schema Registry, 
+user name and password are not required.
+
+You should see the following log output:
+
+```log
+2025-01-17 10:07:37,158 INFO Kafka consumer subscribed to topic 'output-sharing-******'
+2025-01-17 10:07:43,207 INFO Received {'type': 'A', 'id': 10752} -> {'type': 'telematic', 'timestamp': '2025-01-14T11:14:17Z', 'asset': 10752, 'device': 4006, 'asset_uic': None, 'is_open': True, 'content': '{"decoded_as": "bb75000", "state": 2, "status": "parking", "status_last_change": "2025-01-14T09:08:29Z"}', 'version': None, 'recv_time': '2025-01-14T11:14:18Z', 'processed_time': '2025-01-14 11:14:19', 'source': None, 'header': {'nohistory': None, 'nomerge': None, 'job': None, 'nonotifications': None}}
+```
+
+If an unknown schema is used in the topic consumed, the exception below will be raised:
+
+```
+ValueError: Unknown schema id: ...
+```
+
+Make sure to update to the latest version of this repository to have all the schemas in use by Railnova.
+
 
 ## Troubleshoot
 

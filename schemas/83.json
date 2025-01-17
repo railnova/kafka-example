@@ -1,0 +1,116 @@
+{
+  "fields": [
+    {
+      "name": "type",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": "string"
+    },
+    {
+      "name": "asset",
+      "type": [
+        "int",
+        "null"
+      ]
+    },
+    {
+      "name": "device",
+      "type": [
+        "int",
+        "null"
+      ]
+    },
+    {
+      "default": null,
+      "name": "asset_uic",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "is_open",
+      "type": "boolean"
+    },
+    {
+      "name": "content",
+      "type": "string"
+    },
+    {
+      "name": "version",
+      "type": [
+        "int",
+        "null"
+      ]
+    },
+    {
+      "name": "recv_time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    {
+      "default": null,
+      "name": "processed_time",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "default": "unknown",
+      "name": "source",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    {
+      "name": "header",
+      "type": {
+        "fields": [
+          {
+            "default": null,
+            "name": "nohistory",
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          {
+            "default": null,
+            "name": "nomerge",
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          {
+            "default": null,
+            "name": "job",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          {
+            "default": null,
+            "name": "nonotifications",
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        ],
+        "name": "header",
+        "type": "record"
+      }
+    }
+  ],
+  "name": "AnalystOutputSinkValue",
+  "namespace": "eu.railnova.supernova.analyst",
+  "type": "record"
+}
