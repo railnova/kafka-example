@@ -1,0 +1,15 @@
+{
+  "fields": [
+    {
+      "name": "type",
+      "type": "string"
+    },
+    {
+      "name": "id",
+      "type": "int"
+    }
+  ],
+  "name": "AnalystKey",
+  "namespace": "eu.railnova.supernova.analyst",
+  "type": "record"
+}

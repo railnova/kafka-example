@@ -1,5 +1,18 @@
 # Changelog
 
+## 2025-01-17
+
+### Added
+
+- A `railnova_kafka_mtls.py` program to access the Kafka broker using mTLS instead of SASL.
+- A `railnova_kafka_nosr.py` program to access the Kafka broker using mTLS without Schema Registry.
+- All the AVRO schemas required for Railnova's output sharing topics in a `schemas` folder.
+
+### Changed
+
+- The program `railnova_kafka_example.py`'s help now specify its use of SASL.
+- The `README.md` has been updated to reflect changes above.
+
 ## 2025-01-14
 
 ### Added

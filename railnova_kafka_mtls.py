@@ -14,18 +14,26 @@ SSL_CA_LOCATION = os.path.abspath(os.path.join(os.path.dirname(__file__), "ca.pe
 class Arguments(argparse.Namespace):
     username: str
     password: str
+    cert_path: str
+    key_path: str
     topic: str
     hostname: str
     group_id: str
 
 
 def arguments() -> Arguments:
-    parser = argparse.ArgumentParser(description="Railnova Kafka Avro consumer example with SASL")
+    parser = argparse.ArgumentParser(description="Railnova Kafka Avro consumer example with mTLS")
     parser.add_argument(
         "--username", dest="username", required=True, help="SASL username"
     )
     parser.add_argument(
         "--password", dest="password", required=True, help="SASL password"
+    )
+    parser.add_argument(
+        "--certificate", dest="cert_path", required=True, help="Path to the Access Certificate file"
+    )
+    parser.add_argument(
+        "--key", dest="key_path", required=True, help="Path to the Access Key file"
     )
     parser.add_argument("--topic", dest="topic", required=True, help="Kafka topic name")
     parser.add_argument(
@@ -69,12 +77,11 @@ def main() -> int:
     # Create a Kafka consumer with a sensible configuration a for a single consumer.
     kafka_consumer = Consumer(
         {
-            "security.protocol": "SASL_SSL",
-            "sasl.mechanisms": "SCRAM-SHA-256",
-            "sasl.username": args.username,
-            "sasl.password": args.password,
+            "security.protocol": "SSL",
             "ssl.ca.location": SSL_CA_LOCATION,
-            "bootstrap.servers": f"{args.hostname}:27257",
+            "ssl.certificate.location": args.cert_path,
+            "ssl.key.location": args.key_path,
+            "bootstrap.servers": f"{args.hostname}:27246",
             "message.max.bytes": 5000000,
             "group.id": args.group_id,
             "enable.auto.commit": True,  # commit the offset automatically.

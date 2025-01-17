@@ -1,31 +1,66 @@
 import argparse
+import io
+import json
 import logging
+import glob
 import os
+import struct
 import sys
 
 from confluent_kafka import Consumer, KafkaError
-from confluent_kafka.schema_registry import SchemaRegistryClient
-from confluent_kafka.schema_registry.avro import AvroDeserializer
-from confluent_kafka.serialization import SerializationContext, MessageField
+from fastavro.types import Schema
+from fastavro import parse_schema, schemaless_reader
+
+# Parse all schemas from the `schemas` folder and index them in a dictionary by their id.
+SCHEMAS_LOCATION = os.path.join(os.path.dirname(__file__), "schemas")
+SCHEMAS: dict[int, Schema] = {
+    int(os.path.basename(f).split(".")[0]): parse_schema(json.loads(open(f).read()))
+    for f in glob.glob(os.path.join(SCHEMAS_LOCATION, "*.json"))
+}
+
+
+def decode_avro(payload: bytes) -> dict:
+    """
+    A function to decode an Avro payload without depending on the Schema Registry
+    using instead the schemas supplied.
+    """
+    f = io.BytesIO(payload)
+    try:
+        # Read the magic byte and the schema id from the payload.
+        magic, schema_id = struct.unpack(">bI", f.read(5))
+        if schema_id not in SCHEMAS:
+            raise ValueError(f"Unknown schema id: {schema_id}")
+
+        # Decode the payload using the schema found and return the decoded result.
+        return schemaless_reader(f, SCHEMAS[schema_id])
+
+    finally:
+        f.close()
+
 
 SSL_CA_LOCATION = os.path.abspath(os.path.join(os.path.dirname(__file__), "ca.pem"))
 
 
 class Arguments(argparse.Namespace):
-    username: str
-    password: str
+    cert_path: str
+    key_path: str
     topic: str
     hostname: str
     group_id: str
 
 
 def arguments() -> Arguments:
-    parser = argparse.ArgumentParser(description="Railnova Kafka Avro consumer example with SASL")
-    parser.add_argument(
-        "--username", dest="username", required=True, help="SASL username"
+    parser = argparse.ArgumentParser(
+        description="Railnova Kafka schema-less Avro consumer example with mTLS"
     )
     parser.add_argument(
-        "--password", dest="password", required=True, help="SASL password"
+        "--certificate",
+        dest="cert_path",
+        required=True,
+        help="Path to the Access Certificate file",
+    )
+    parser.add_argument(
+        "--key", dest="key_path", required=True, help="Path to the Access Key file"
     )
     parser.add_argument("--topic", dest="topic", required=True, help="Kafka topic name")
     parser.add_argument(
@@ -52,29 +87,14 @@ def main() -> int:
     logger.addHandler(logHandler)
     logger.setLevel(logging.INFO)
 
-    # Create a deserializer and serialization contexts to decode message keys and values from AVRO.
-    schema_registry = SchemaRegistryClient(
-        {"url": f"https://{args.username}:{args.password}@{args.hostname}:27249"}
-    )
-    key_context = SerializationContext(args.topic, MessageField.KEY)
-    value_context = SerializationContext(args.topic, MessageField.VALUE)
-    avro_deserializer = AvroDeserializer(schema_registry)
-    #
-    # See https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#avrodeserializer
-
-    # Test connectivity to the schema registry by fetching schema with id 1.
-    schema_registry.get_schema(1)
-    logger.info(f"Schema registry is accessible at '{args.hostname}'")
-
     # Create a Kafka consumer with a sensible configuration a for a single consumer.
     kafka_consumer = Consumer(
         {
-            "security.protocol": "SASL_SSL",
-            "sasl.mechanisms": "SCRAM-SHA-256",
-            "sasl.username": args.username,
-            "sasl.password": args.password,
+            "security.protocol": "SSL",
             "ssl.ca.location": SSL_CA_LOCATION,
-            "bootstrap.servers": f"{args.hostname}:27257",
+            "ssl.certificate.location": args.cert_path,
+            "ssl.key.location": args.key_path,
+            "bootstrap.servers": f"{args.hostname}:27246",
             "message.max.bytes": 5000000,
             "group.id": args.group_id,
             "enable.auto.commit": True,  # commit the offset automatically.
@@ -102,8 +122,8 @@ def main() -> int:
             error: KafkaError | None = message.error()
             if error is None:
                 # log the deserialized message's key and value
-                k = avro_deserializer(message.key(), key_context)
-                v = avro_deserializer(message.value(), value_context)
+                k = decode_avro(message.key())
+                v = decode_avro(message.value())
                 logger.info(f"Received {k} -> {v}")
                 break
 
