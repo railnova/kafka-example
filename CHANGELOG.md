@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-02-04
+
+### Added
+
+- the latest schema for output sink values, as `85.json`.
+
+
 ## 2025-01-17
 
 ### Added
