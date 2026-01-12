@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-01-12
+
+### Changed
+
+- Use REST endpoint of Karapace to resolve AVRO schemas (see issue [#8](https://github.com/railnova/kafka-example/issues/8)).
+- Updated the `README.md` to account for added dependencies: `requests` and `types-confluent-kafka`.
+- Let sources pass `basic` type checking using Pylance.
+
 ## 2025-01-17
 
 ### Added
