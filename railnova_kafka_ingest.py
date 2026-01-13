@@ -157,6 +157,7 @@ def main() -> int:
             v = encode_avro(value, ingest_value_id, ingest_value_schema)
             kafka_producer.produce(
                 topic=args.topic,
+                headers={"source": "railnova/kafka-example"},
                 key=k,
                 value=v,
                 callback=produce_callback,
