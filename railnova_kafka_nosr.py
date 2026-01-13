@@ -6,6 +6,7 @@ import glob
 import os
 import struct
 import sys
+import typing
 
 from confluent_kafka import Consumer, KafkaError
 from fastavro.types import Schema
@@ -32,7 +33,7 @@ def decode_avro(payload: bytes) -> dict:
             raise ValueError(f"Unknown schema id: {schema_id}")
 
         # Decode the payload using the schema found and return the decoded result.
-        return schemaless_reader(f, SCHEMAS[schema_id])
+        return schemaless_reader(f, SCHEMAS[schema_id])  # type: ignore
 
     finally:
         f.close()
@@ -75,7 +76,7 @@ def arguments() -> Arguments:
         default="railnova_kafka_example",
         help="Kafka consumer group id",
     )
-    return parser.parse_args()
+    return typing.cast(Arguments, parser.parse_args())
 
 
 def main() -> int:
@@ -122,14 +123,14 @@ def main() -> int:
             error: KafkaError | None = message.error()
             if error is None:
                 # log the deserialized message's key and value
-                k = decode_avro(message.key())
-                v = decode_avro(message.value())
+                k = decode_avro(message.key() or b"")
+                v = decode_avro(message.value() or b"")
                 logger.info(f"Received {k} -> {v}")
                 break
 
             else:
                 # Print the error message found in the message's value
-                logger.error(bytes.decode(message.value()))
+                logger.error(bytes.decode(message.value() or b"error message missing"))
         except KeyboardInterrupt:
             break
 

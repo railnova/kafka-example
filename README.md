@@ -30,6 +30,8 @@ Finally, install the required dependencies in the activated virtual environment:
 
 ```bash
 pip install confluent-kafka[avro,schemaregistry]==2.8.0
+pip install types-confluent-kafka
+pip install requests
 ```
 
 This will install version `2.8.0` of Confluent's client library with the optional support for AVRO

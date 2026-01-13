@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+import typing
 
 from confluent_kafka import Consumer, KafkaError
 from confluent_kafka.schema_registry import SchemaRegistryClient
@@ -40,7 +41,7 @@ def arguments() -> Arguments:
         default="railnova_kafka_example",
         help="Kafka consumer group id",
     )
-    return parser.parse_args()
+    return typing.cast(Arguments, parser.parse_args())
 
 
 def main() -> int:
@@ -102,14 +103,14 @@ def main() -> int:
             error: KafkaError | None = message.error()
             if error is None:
                 # log the deserialized message's key and value
-                k = avro_deserializer(message.key(), key_context)
-                v = avro_deserializer(message.value(), value_context)
+                k = avro_deserializer(message.key() or b"", key_context)
+                v = avro_deserializer(message.value() or b"", value_context)
                 logger.info(f"Received {k} -> {v}")
                 break
 
             else:
                 # Print the error message found in the message's value
-                logger.error(bytes.decode(message.value()))
+                logger.error(bytes.decode(message.value() or b"error message missing"))
         except KeyboardInterrupt:
             break
 

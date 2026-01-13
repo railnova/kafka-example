@@ -1,14 +1,54 @@
 import argparse
 import logging
+import io
+import json
 import os
+from typing import TypedDict
+import typing
+import requests
+import struct
 import sys
 
 from confluent_kafka import Consumer, KafkaError
-from confluent_kafka.schema_registry import SchemaRegistryClient
-from confluent_kafka.schema_registry.avro import AvroDeserializer
-from confluent_kafka.serialization import SerializationContext, MessageField
+from fastavro.types import Schema
+from fastavro import parse_schema, schemaless_reader
 
 SSL_CA_LOCATION = os.path.abspath(os.path.join(os.path.dirname(__file__), "ca.pem"))
+
+
+class SchemaDefinition(TypedDict):
+    id: int
+    schema: str
+
+
+def load_schemas(base_url: str, username: str, password: str) -> dict[int, Schema]:
+    resp = requests.get(f"{base_url}/schemas", auth=(username, password))
+    assert (
+        resp.status_code == 200
+    ), f"Failed to fetch schemas from registry: {resp.text}"
+    response_json: list[SchemaDefinition] = resp.json()
+    return {
+        definition["id"]: parse_schema(json.loads(definition["schema"]))
+        for definition in response_json
+    }
+
+
+def decode_avro(payload: bytes, schemas: dict[int, Schema]) -> tuple[int, dict]:
+    """
+    A function to decode an Avro payload using the schemas supplied.
+    """
+    f = io.BytesIO(payload)
+    try:
+        # Read the magic byte and the schema id from the payload.
+        magic, schema_id = struct.unpack(">bI", f.read(5))
+        if schema_id not in schemas:
+            raise ValueError(f"Unknown schema id: {schema_id}")
+
+        # Decode the payload using the schema found and return the decoded result.
+        return schema_id, schemaless_reader(f, schemas[schema_id], None)  # type: ignore
+
+    finally:
+        f.close()
 
 
 class Arguments(argparse.Namespace):
@@ -22,7 +62,9 @@ class Arguments(argparse.Namespace):
 
 
 def arguments() -> Arguments:
-    parser = argparse.ArgumentParser(description="Railnova Kafka Avro consumer example with mTLS")
+    parser = argparse.ArgumentParser(
+        description="Railnova Kafka Avro consumer example with mTLS"
+    )
     parser.add_argument(
         "--username", dest="username", required=True, help="SASL username"
     )
@@ -30,7 +72,10 @@ def arguments() -> Arguments:
         "--password", dest="password", required=True, help="SASL password"
     )
     parser.add_argument(
-        "--certificate", dest="cert_path", required=True, help="Path to the Access Certificate file"
+        "--certificate",
+        dest="cert_path",
+        required=True,
+        help="Path to the Access Certificate file",
     )
     parser.add_argument(
         "--key", dest="key_path", required=True, help="Path to the Access Key file"
@@ -48,31 +93,23 @@ def arguments() -> Arguments:
         default="railnova_kafka_example",
         help="Kafka consumer group id",
     )
-    return parser.parse_args()
+    return typing.cast(Arguments, parser.parse_args())
 
 
 def main() -> int:
     # Parse command line arguments and configure a logger
-    args = arguments()
+    args: Arguments = arguments()
     logHandler = logging.StreamHandler()
     logHandler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
     logger = logging.getLogger("railnova_kafka_example")
     logger.addHandler(logHandler)
     logger.setLevel(logging.INFO)
 
-    # Create a deserializer and serialization contexts to decode message keys and values from AVRO.
-    schema_registry = SchemaRegistryClient(
-        {"url": f"https://{args.username}:{args.password}@{args.hostname}:27249"}
+    # Load the schemas from the schema registry
+    schemas = load_schemas(
+        f"https://{args.hostname}:27249", args.username, args.password
     )
-    key_context = SerializationContext(args.topic, MessageField.KEY)
-    value_context = SerializationContext(args.topic, MessageField.VALUE)
-    avro_deserializer = AvroDeserializer(schema_registry)
-    #
-    # See https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#avrodeserializer
-
-    # Test connectivity to the schema registry by fetching schema with id 1.
-    schema_registry.get_schema(1)
-    logger.info(f"Schema registry is accessible at '{args.hostname}'")
+    logger.info(f"Schema loaded from registry at '{args.hostname}:27249'")
 
     # Create a Kafka consumer with a sensible configuration a for a single consumer.
     kafka_consumer = Consumer(
@@ -109,14 +146,14 @@ def main() -> int:
             error: KafkaError | None = message.error()
             if error is None:
                 # log the deserialized message's key and value
-                k = avro_deserializer(message.key(), key_context)
-                v = avro_deserializer(message.value(), value_context)
+                k = decode_avro(message.key() or b"", schemas)
+                v = decode_avro(message.value() or b"", schemas)
                 logger.info(f"Received {k} -> {v}")
                 break
 
             else:
                 # Print the error message found in the message's value
-                logger.error(bytes.decode(message.value()))
+                logger.error(bytes.decode(message.value() or b"error message missing"))
         except KeyboardInterrupt:
             break
 
