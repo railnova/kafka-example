@@ -8,6 +8,12 @@
 - Updated the `README.md` to account for added dependencies: `requests` and `types-confluent-kafka`.
 - Let sources pass `basic` type checking using Pylance.
 
+## 2025-02-04
+
+### Added
+
+- the latest schema for output sink values, as `85.json`.
+
 ## 2025-01-17
 
 ### Added
