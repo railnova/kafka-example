@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-01-13
+
+### Changed
+
+- Add a `railnova_kafka_ingest.py` example to showcase the production of telematic events in an ingest topic
+  (see issue [#9](https://github.com/railnova/kafka-example/issues/9)).
+
 ## 2026-01-12
 
 ### Changed
