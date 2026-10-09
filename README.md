@@ -130,3 +130,15 @@ following output on STDERR:
 ```log
 2025-01-10 11:03:16,527 ERROR FAIL [rdkafka#consumer-1] [thrd:sasl_ssl://kafka-13e7abdf-test-railnova-5ffc.aivencloud.com:272]: sasl_ssl://kafka-13e7abdf-test-railnova-5ffc.aivencloud.com:27257/bootstrap: SSL handshake failed: error:0A000086:SSL routines::certificate verify failed: broker certificate could not be verified, verify that ssl.ca.location is correctly configured or root CA certificates are installed (install ca-certificates package) (after 19ms in state SSL_HANDSHAKE)
 ```
+
+## Leading Packages
+
+See: https://railnova.atlassian.net/wiki/spaces/WIKI/pages/395343167501/Dependency+upgrade+policy#Software-dependencies
+
+The leading packages of this project are:
+
+- Python
+- confluent-kafka
+- fastavro
+
+We upgrade dependencies either to support these leading packages in their current LTS versions or because of a security advisory.
